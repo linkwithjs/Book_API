@@ -27,8 +27,11 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+
         repository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("username not found"));
+
+
         var newUser = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
