@@ -1,5 +1,9 @@
 package com.rj.security.auth;
 
+import com.rj.security.dto.LoginDTO;
+import com.rj.security.dto.RegisterDTO;
+import com.rj.security.dto.TokenDTO;
+import com.rj.security.exception.EmailAlreadyExistsException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,19 +22,14 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request) {
-        // if (UserRepository.findByEmail(request.getEmail())) {
-        // return ResponseEntity
-        // .badRequest()
-        // .body(new MessageResponse("Error: Email is already in use!"));
-        // }
+    public ResponseEntity<TokenDTO> register(
+            @RequestBody RegisterDTO request) throws EmailAlreadyExistsException {
         return ResponseEntity.ok(service.register(request));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<TokenDTO> authenticate(
+            @RequestBody LoginDTO request) {
         return ResponseEntity.ok(service.authenticate(request));
     }
 

@@ -1,5 +1,9 @@
 package com.rj.security.auth;
 
+import com.rj.security.dto.LoginDTO;
+import com.rj.security.dto.RegisterDTO;
+import com.rj.security.dto.TokenDTO;
+import com.rj.security.exception.EmailAlreadyExistsException;
 import com.rj.security.jwt.JwtService;
 import com.rj.security.token.Token;
 import com.rj.security.token.TokenRepository;
@@ -10,13 +14,11 @@ import com.rj.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,12 +30,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public TokenDTO register(RegisterDTO request) throws EmailAlreadyExistsException {
 
         var emailEntry = repository.findByEmail(request.getEmail());
 
         if (emailEntry.isPresent()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!");
+            throw new EmailAlreadyExistsException( "Error: Email is already in use!");
         }
         var newUser = User.builder()
                 .firstname(request.getFirstname())
@@ -42,25 +44,29 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
+
         var savedUser = repository.save(newUser);
         var jwtToken = jwtService.generateToken(newUser);
         saveUserToken(savedUser, jwtToken);
-        return AuthenticationResponse.builder()
+        return TokenDTO.builder()
                 .token(jwtToken)
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public TokenDTO authenticate(LoginDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()));
+
         var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new UsernameNotFoundException("Email not found"));
+                .orElseThrow(()-> new UsernameNotFoundException("User not found"));
+
         var jwtToken = jwtService.generateToken(user);
+
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
+        return TokenDTO.builder()
                 .token(jwtToken)
                 .build();
     }

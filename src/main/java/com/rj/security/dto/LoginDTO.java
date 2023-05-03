@@ -1,4 +1,4 @@
-package com.rj.security.auth;
+package com.rj.security.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-
-    private String token;
+public class LoginDTO {
+    private String email;
+    String password;
 }
