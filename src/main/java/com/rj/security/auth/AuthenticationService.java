@@ -1,6 +1,6 @@
 package com.rj.security.auth;
 
-import com.rj.security.config.JwtService;
+import com.rj.security.jwt.JwtService;
 import com.rj.security.token.Token;
 import com.rj.security.token.TokenRepository;
 import com.rj.security.token.TokenType;
@@ -10,11 +10,13 @@ import com.rj.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +30,11 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request) {
 
-        repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("username not found"));
+        var emailEntry = repository.findByEmail(request.getEmail());
 
-
+        if (emailEntry.isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!");
+        }
         var newUser = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -53,7 +56,7 @@ public class AuthenticationService {
                         request.getEmail(),
                         request.getPassword()));
         var user = repository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(()-> new UsernameNotFoundException("Email not found"));
         var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

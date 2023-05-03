@@ -1,4 +1,4 @@
-package com.rj.security.config;
+package com.rj.security.jwt;
 
 import com.rj.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;

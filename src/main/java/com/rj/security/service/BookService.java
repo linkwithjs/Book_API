@@ -1,10 +1,10 @@
-package com.rj.security.Service;
+package com.rj.security.service;
 
-import com.rj.security.Model.Book;
+import com.rj.security.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.rj.security.DAO.BookRepo;
+import com.rj.security.repository.BookRepo;
 
 @Service
 public class BookService {

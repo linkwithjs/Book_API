@@ -1,4 +1,4 @@
-package com.rj.security.config;
+package com.rj.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

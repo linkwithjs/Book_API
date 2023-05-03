@@ -1,4 +1,4 @@
-package com.rj.security.Model;
+package com.rj.security.model;
 
 import jakarta.persistence.*;
 
