@@ -1,5 +1,6 @@
 package com.rj.security.jwt;
 
+import com.rj.security.MyCustomExceptionsHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,10 +36,11 @@ public class SecurityConfiguration {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .exceptionHandling().authenticationEntryPoint(new AuthExceptionEntryPoint())
+                .exceptionHandling().accessDeniedHandler(new AccessDeniedHandler()).authenticationEntryPoint(new AuthExceptionEntryPoint())
                 .and()
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .logout()
                 .logoutUrl("/api/v1/auth/logout")
                 .addLogoutHandler(logoutHandler)

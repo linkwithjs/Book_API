@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import com.rj.security.repository.BookRepo;
 
+import java.util.List;
+
 @Service
 public class BookService {
 
@@ -16,5 +18,8 @@ public class BookService {
     public Book addBook(Book b) {
         Book result = bookRepo.save(b);
         return result;
+    }
+    public List<Book> getBooks(){
+        return (List<Book>) bookRepo.findAll();
     }
 }

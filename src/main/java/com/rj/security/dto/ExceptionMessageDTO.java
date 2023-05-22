@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class ExceptionMessageDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private String errorCode;
+    private int errorCode;
     private String errorMessage;
     private String path;
     private LocalDateTime timestamp;
@@ -20,7 +20,7 @@ public class ExceptionMessageDTO {
         timestamp = LocalDateTime.now();
     }
 
-    public ExceptionMessageDTO(String errorCode, String errorMessage, String path) {
+    public ExceptionMessageDTO(int errorCode, String errorMessage, String path) {
         this();
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;

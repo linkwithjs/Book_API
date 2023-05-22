@@ -22,7 +22,7 @@ public class AuthExceptionEntryPoint  implements AuthenticationEntryPoint {
         log.error("unauthorized", authException);
 //        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
 
-        ErrorDTO re = new ErrorDTO(HttpStatus.UNAUTHORIZED.toString(), "Authentication failed");
+        ErrorDTO re = new ErrorDTO(HttpStatus.UNAUTHORIZED.value(), "Authentication failed");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         OutputStream responseStream = response.getOutputStream();

@@ -9,22 +9,31 @@ import com.rj.security.token.Token;
 import com.rj.security.token.TokenRepository;
 import com.rj.security.token.TokenType;
 import com.rj.security.user.Role;
+import com.rj.security.user.RoleRepository;
 import com.rj.security.user.User;
 import com.rj.security.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import org.hibernate.annotations.SQLUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     @Autowired
     UserRepository repository;
+
+    @Autowired
+    RoleRepository roleRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -37,12 +46,23 @@ public class AuthenticationService {
         if (emailEntry.isPresent()){
             throw new EmailAlreadyExistsException( "Error: Email is already in use!");
         }
+
+        Set<String> strRoles = request.getRole();
+        Set<Role> roles = new HashSet<>();
+        strRoles.forEach(role -> {
+            String roleName = role.trim().toUpperCase();
+            Role verifiedRole = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Error: " + roleName + " is not found."));
+            roles.add(verifiedRole);
+        });
+
+
         var newUser = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .roles(roles)
                 .build();
 
         var savedUser = repository.save(newUser);
@@ -62,7 +82,7 @@ public class AuthenticationService {
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken((UserDetails) user);
 
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);

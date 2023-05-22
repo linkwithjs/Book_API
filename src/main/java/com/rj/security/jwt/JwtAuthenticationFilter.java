@@ -9,6 +9,8 @@ import java.io.IOException;
 // import java.security.Security;
 import lombok.RequiredArgsConstructor;
 // import org.springframework.lang.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,12 +26,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+
+        try {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -53,7 +58,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        }}
+        catch (Exception e) {
+            LOGGER.error("Cannot set user authentication: " + e.getMessage(), e);
         }
-        filterChain.doFilter(request, response);
+
+        try {
+            filterChain.doFilter(request, response);
+
+        } catch (ServletException e) {
+            System.out.println(e.getMessage());
+            }
+
     }
 }
