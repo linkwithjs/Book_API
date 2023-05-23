@@ -5,11 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.rj.security.model.Book;
 import com.rj.security.service.BookService;
 
@@ -18,7 +14,6 @@ import com.rj.security.service.BookService;
 public class BookController {
     @Autowired
     private BookService bookService;
-
 //    @GetMapping
 //    public ResponseEntity<String> sayHello() {
 //        return ResponseEntity.ok("Hello from secured book endpoint:)");
@@ -49,5 +44,44 @@ public class BookController {
         }
     }
 
+    // Delete a book
+    @DeleteMapping("/books/{bookId}")
+    public ResponseEntity<Void> deleteBook(@PathVariable("bookId") int bookId) {
+        try {
+            // System.out.println("Book id : " + bookId);
+            this.bookService.deleteBook(bookId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
+
+    // Fetch Single book
+    @GetMapping("/books/{id}")
+    public ResponseEntity<Book> getBook(@PathVariable("id") int id) {
+        Book book = bookService.getBookById(id);
+        if (book == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.of(Optional.of(book));
+    }
+
+    // Update Book
+    @PutMapping("/books/{bookId}")
+    public ResponseEntity<Book> updateBook(@RequestBody Book book, @PathVariable("bookId") int bookId) {
+        try {
+            Book result = bookService.updateBook(book, bookId);
+            if (result == null) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok().body(result);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }

@@ -17,6 +17,16 @@ public class BookService {
         // System.out.println("books>> " + list);
         return list;
     }
+    // get single book by id
+    public Book getBookById(int id) {
+        Book book = null;
+        try {
+            book = this.bookRepo.findById(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return book;
+    }
 
     // adding the book
     public Book addBook(Book b) {
@@ -24,4 +34,24 @@ public class BookService {
         return result;
     }
 
+    // Delete a book
+    public void deleteBook(int bid) {
+        bookRepo.deleteById(bid);
+    }
+
+
+    // Update book
+    public Book updateBook(Book book, int bookId) {
+        Book result = bookRepo.findById(bookId);
+        try {
+            if (result != null) {
+                book.setId(bookId);
+                bookRepo.save(book);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
 }
